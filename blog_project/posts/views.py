@@ -1,4 +1,5 @@
-from rest_framework import viewsets, permissions, status
+# 1. Added 'filters' to this import line
+from rest_framework import viewsets, permissions, status, filters 
 from rest_framework.response import Response
 from django.core.files.storage import default_storage
 from .models import Post
@@ -6,9 +7,13 @@ from .serializers import PostSerializer
 from .permissions import IsOwnerOrReadOnly
 
 class PostViewSet(viewsets.ModelViewSet):
-    queryset = Post.objects.all().order_by('-created_at')
+    # This perfectly hides the deleted posts!
+    queryset = Post.objects.filter(is_deleted=False).order_by('-created_at')
     serializer_class = PostSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
+    
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['title', 'content', 'author__username']
 
     def create(self, request, *args, **kwargs):
         # 1. Make a copy of the incoming data so we can modify it
@@ -34,3 +39,15 @@ class PostViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
+
+    # ---------------------------------------------------------
+    # NEW CODE: Override destroy to perform a Soft Delete
+    # ---------------------------------------------------------
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object() 
+        
+        # Flip the flag instead of deleting from the database
+        instance.is_deleted = True 
+        instance.save()
+        
+        return Response(status=status.HTTP_204_NO_CONTENT)
