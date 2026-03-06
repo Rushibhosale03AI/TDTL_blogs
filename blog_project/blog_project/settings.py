@@ -120,7 +120,18 @@ AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
+
+
 ]
+
+    # Email Configuration (Hostinger SMTP)
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.hostinger.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'support@thedatatechlabs.com'
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD') # Pulled securely!
+DEFAULT_FROM_EMAIL = 'support@thedatatechlabs.com'
 
 
 # Internationalization
@@ -155,6 +166,18 @@ SIMPLE_JWT = {
     'ROTATE_REFRESH_TOKENS': False,
     'BLACKLIST_AFTER_ROTATION': True,
 }
-
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'techblog-cache',
+        
+        # How long should the data stay alive in seconds? (300 = 5 minutes)
+        'TIMEOUT': 300, 
+        
+        # This is your LRU rule! If you get more than 300 unique saved pages, 
+        # it deletes the oldest one to make room.
+        'MAX_ENTRIES': 300, 
+    }
+}
 # Allows the frontend teammate to connect without browser errors
-CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_ALL_ORIGINS = True 

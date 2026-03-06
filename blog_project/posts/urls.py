@@ -1,10 +1,13 @@
-from django.urls import path, include
-from rest_framework.routers import DefaultRouter
-from .views import PostViewSet
+# posts/urls.py
+from django.urls import path
+from .views import PostListCreateAPIView, PostDetailAPIView
 
-router = DefaultRouter()
-router.register(r'', PostViewSet) # Register the viewset
+# (Removed the unused DefaultRouter import to keep your code clean)
 
 urlpatterns = [
-    path('', include(router.urls)),
+    # URL Math: 'api/' (from main) + 'posts/' (from here) = '/api/posts/'
+    path('posts/', PostListCreateAPIView.as_view(), name='post-list-create'),
+    
+    # URL Math: 'api/' (from main) + 'posts/<int:pk>/' (from here) = '/api/posts/1/'
+    path('posts/<int:pk>/', PostDetailAPIView.as_view(), name='post-detail'),
 ]

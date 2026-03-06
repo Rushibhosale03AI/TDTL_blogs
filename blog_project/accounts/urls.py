@@ -1,17 +1,15 @@
 from django.urls import path
-from .views import RegisterView
-from rest_framework_simplejwt.views import (
-    TokenObtainPairView,
-    TokenRefreshView,
-)
+from rest_framework_simplejwt.views import TokenRefreshView
+# Make sure you import CustomTokenObtainPairView here!
+from .views import RegisterView, PasswordResetRequestView, PasswordResetConfirmView, CustomTokenObtainPairView
 
 urlpatterns = [
-    # API for user registration [cite: 28]
     path('register/', RegisterView.as_view(), name='register'),
     
-    # API to login and get Access/Refresh tokens [cite: 29]
-    path('login/', TokenObtainPairView.as_view(), name='login'),
+    # WE CHANGED THIS LINE: Now it uses our Custom Email Login view
+    path('login/', CustomTokenObtainPairView.as_view(), name='login'),
     
-    # API to refresh an expired token [cite: 15]
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('password-reset/', PasswordResetRequestView.as_view(), name='password-reset-request'),
+    path('password-reset-confirm/<uidb64>/<token>/', PasswordResetConfirmView.as_view(), name='password-reset-confirm'),
 ]
